@@ -1,6 +1,8 @@
 {
   "name": "flip-clock-react",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/flip-clock-react.umd.js",
   "module": "./dist/flip-clock-react.es.js",
   "exports": {
@@ -10,7 +12,7 @@
     }
   },
   "private": false,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
