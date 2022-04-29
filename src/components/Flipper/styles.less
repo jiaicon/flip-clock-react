@@ -1,7 +1,7 @@
 .react-flipper {
   display: inline-block;
   position: relative;
-  border: solid 1px #000;
+  border: var(--flipper-border);
   border-radius: 10px;
   background: #fff;
   font-size: 66px;
@@ -19,7 +19,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    background: #000;
+    background: var(--flipper-background-color);
     overflow: hidden;
     box-sizing: border-box;
   }
@@ -27,7 +27,7 @@
     top: 0;
     bottom: 50%;
     border-radius: 10px 10px 0 0;
-    border-bottom: solid 1px #666;
+    border-bottom: var(--flipper-divide-line);
   }
   .digital:after {
     top: 50%;

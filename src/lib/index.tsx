@@ -1,15 +1,22 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Flipper from '@/components/Flipper';
+import classnames from 'classnames';
 import styles from './styles.module.less';
 
-type Type = 'd' | 'h' | 'm' | 's' | 'ms' | 'D' | 'H' | 'M' | 'S' | 'MS';
-interface FlipClockReact {
+export type Type = 'd' | 'h' | 'm' | 's' | 'ms' | 'D' | 'H' | 'M' | 'S' | 'MS';
+export interface FlipClockReact {
   format?: string; // 默认: 'd:h:s:ms'
   timeline: Date | string | number;
   full?: boolean;
   divide?: boolean;
+  classNames?: string;
+  flipperClassNames?: string;
+  styles?: React.CSSProperties;
+  flipperStyles?: React.CSSProperties;
+  colonStyles?: React.CSSProperties;
+  colon?: (colon: string) => React.ReactNode;
 }
-type ST = Record<Type, number>
+export type ST = Record<Type, number>
 const st: ST = {
   d: 24 * 60 * 60 * 1000,
   h: 60 * 60 * 1000,
@@ -22,24 +29,19 @@ const st: ST = {
   S: 1000,
   MS: 1,
 }
-interface FlipType {
+export interface FlipType {
   type: 'flip',
   frontText: string | number,
   backText: string | number,
 }
-interface TextType {
+export interface TextType {
   type: 'text',
   value: string;
 }
 const Index = (props: FlipClockReact) => {
-  const { format = 'd:h:m:s', timeline, full = true, divide = false } = props;
+  const { format = 'd:h:m:s', timeline, full = true, divide = false, classNames, flipperClassNames, flipperStyles, colon, colonStyles } = props;
   const timer = useRef<any>(null);
   const formatTimeline = useRef<number>(0);
-  const [dada, setData] = useState<FlipType>({
-    type: 'flip',
-    frontText: 0,
-    backText: 0
-  })
   const [intervalTime, setIntervalTime] = useState<number>(1000);
   const [text, setText] = useState<(FlipType | TextType)[]>([]);
 
@@ -94,7 +96,6 @@ const Index = (props: FlipClockReact) => {
             backText: minute_text
           } as FlipType
         } else if (item?.toLocaleLowerCase() === 's') {
-          console.log(hour)
           second = Math.floor(timeStamp / st.s - (day * 24 * 60 * 60 + hour * 60 * 60 + minute * 60));
           const second_text = full && second / 10 < 1 ? `0${second}` : second;
           interval = st[item as Type];
@@ -125,18 +126,19 @@ const Index = (props: FlipClockReact) => {
         } as TextType
       }
     })
-    setIntervalTime(interval);
+    setIntervalTime((() => interval));
     return b;
   }
 
   const run = () => {
     let t = formatTimeline.current;
+
     timer.current = setInterval(() => {
       if (t <= 0) {
         clearInterval(timer.current);
         return;
       }
-      t = t - 1000;
+      t = t - intervalTime;
       setText((_text) => formatDate(t, format, _text))
     }, intervalTime)
   }
@@ -147,52 +149,25 @@ const Index = (props: FlipClockReact) => {
       clearInterval(timer.current)
     }
   }, [intervalTime])
-  const onChange = () => {
-    setData({
-      type: 'flip',
-      frontText: dada.backText,
-      backText: Number(dada.backText) + 1
-    })
-  }
+  const classes = classnames(styles['flip-clock-react'], classNames)
   return (
-    <div>
-      <div className={styles['flip-clock-react']}>
-        {
-          text.map((item, index) => {
-            if (item.type == 'flip') {
-              return (
-                <Flipper
-                  key={index}
-                  frontText={item.frontText}
-                  backText={item.backText}
-                />
-              )
-            }
-            return <span key={index}>{item.value}</span>
-          })
-        }
-      </div>
-      <br />
-      <div className={styles['flip-clock-react']}>
-        <Flipper
-          frontText={14}
-          backText={14}
-        />
-        :
-        <Flipper
-          frontText={11}
-          backText={11}
-        />
-        :
-        <Flipper
-          frontText={dada.frontText}
-          backText={dada.backText}
-        />
-      </div>
-      <br />
-      <div style={{ position: 'relative', zIndex: 10 }}>
-        <button onClick={onChange}>切换</button>
-      </div>
+    <div className={classes}>
+      {
+        text.map((item, index) => {
+          if (item.type == 'flip') {
+            return (
+              <Flipper
+                key={index}
+                backText={item.backText}
+                frontText={item.frontText}
+                styles={{ ...flipperStyles }}
+                classNames={flipperClassNames}
+              />
+            )
+          }
+          return colon ? colon(item.value) : <span className={styles.colon} key={index} style={{...colonStyles}}>{item.value}</span>
+        })
+      }
     </div>
   )
 }
