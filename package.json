@@ -9,7 +9,7 @@
       "require": "./dist/flip-clock-react.umd.js"
     }
   },
-  "private": true,
+  "private": false,
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
